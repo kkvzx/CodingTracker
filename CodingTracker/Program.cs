@@ -1,6 +1,5 @@
-﻿using System.Collections.Specialized;
-using Microsoft.Extensions.Configuration;
-using ConfigurationManager = System.Configuration.ConfigurationManager;
+﻿using CodingTracker.Presenters;
+using CodingTracker.Views;
 
 /*
  * - Configuration file,
@@ -9,16 +8,15 @@ using ConfigurationManager = System.Configuration.ConfigurationManager;
  * - CRUD controller (where operations will happen)
  * - Table visualization engine,
  * - Validation of data
+ *
+ *
+ * MVP - Model View Presenter
+ * Model - Odpowiada za przechowywanie danych i zasad biznesowych (Data
+ * View - Interfejs przsez który użytkownik wchodzi w interakcje
+ * Presenter - Służy jako most między Model i View, manipulując danymi pochodzącymi z Modelu, przekazując je do View
  */
 
+CodingSessionsView codingSessionsView = new();
+CodingSessionPresenter presenter = new(codingSessionsView);
 
-// Load configuration from appsettings.json
-var config = new ConfigurationBuilder()
-    .SetBasePath(AppContext.BaseDirectory)
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-    .Build();
-
-// Get the connection string
-string? connectionString = config.GetSection("ConnectionStrings:DefaultConnection").Value;
-
-Console.WriteLine("Connection String: " + connectionString);
+presenter.Run();
