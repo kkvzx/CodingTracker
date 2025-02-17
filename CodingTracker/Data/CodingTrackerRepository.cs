@@ -1,4 +1,5 @@
 using CodingTracker.model;
+using Dapper;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Configuration;
 
@@ -31,11 +32,50 @@ public class CodingTrackerRepository
         }
     }
 
-    public void Insert(CodingSession codingSession) => throw new NotImplementedException();
+    public void Insert(CodingSession codingSession)
+    {
+        try
+        {
+            using (SqliteConnection connection = new(s_connectionString))
+            {
+                connection.Open();
+                string command = $"INSERT INTO {s_tableName} (StartTime, EndTime) VALUES (@StartTime, @EndTime)";
+                int rowsAffected = connection.Execute(command, codingSession);
+                Console.WriteLine($"{rowsAffected} row(s) inserted.");
+
+                connection.Close();
+            }
+        }
+        catch (Exception error)
+        {
+            Console.WriteLine(error.Message);
+        }
+    }
 
     public void Update(CodingSession codingSession) => throw new NotImplementedException();
 
     public void Delete(string id) => throw new NotImplementedException();
 
-    public List<CodingSession> GetAll() => throw new NotImplementedException();
+    public List<CodingSession> GetAll()
+    {
+        try
+        {
+            using (SqliteConnection connection = new(s_connectionString))
+            {
+                connection.Open();
+                string command = $"SELECT * FROM {s_tableName}";
+                List<CodingSession> codingSessions = connection.Query<CodingSession>(command).ToList();
+
+                connection.Close();
+
+                return codingSessions;
+            }
+        }
+        catch (Exception error)
+        {
+            Console.WriteLine(error.Message);
+        }
+
+        return new List<CodingSession>();
+    }
 }

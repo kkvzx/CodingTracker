@@ -1,4 +1,5 @@
-﻿using CodingTracker.Presenters;
+﻿using CodingTracker.Data;
+using CodingTracker.Presenters;
 using CodingTracker.Views;
 
 /*
@@ -16,7 +17,13 @@ using CodingTracker.Views;
  * Presenter - Służy jako most między Model i View, manipulując danymi pochodzącymi z Modelu, przekazując je do View
  */
 
+/*  TODO
+ *  1. Wyświetlanie danych nie działa przy użyciu Dappera. Spróbować to zrobić na prostszym modelu zawierającym np tylko stringi
+ *
+ * ref https://thecsharpacademy.com/project/13/coding-tracker
+ */
+CodingTrackerRepository repository = new();
 CodingSessionsView codingSessionsView = new();
-CodingSessionPresenter presenter = new(codingSessionsView);
+CodingSessionPresenter presenter = new(codingSessionsView, repository);
 
 presenter.Run();

@@ -18,7 +18,14 @@ public class CodingSessionsView : ICodingSessionsView
 
     public void ShowMessage(string message) => Console.WriteLine(message);
 
-    public string? GetUserInput(string prompt)
+    public void PressKeyToContinue()
+    {
+        Console.WriteLine("Press any key to continue...");
+        Console.ReadKey();
+        Console.Clear();
+    }
+
+    public string? GetDateTime(string prompt)
     {
         Console.Write(prompt);
         return Console.ReadLine();

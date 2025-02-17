@@ -6,5 +6,6 @@ public interface ICodingSessionsView
 {
     void ShowCodingSessions(List<CodingSession> codingSessions);
     void ShowMessage(string message);
-    string GetUserInput(string prompt);
+    void PressKeyToContinue();
+    string GetDateTime(string prompt);
 }

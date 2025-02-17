@@ -1,17 +1,25 @@
 namespace CodingTracker.model;
 
-public class CodingSession(string id, DateTime startDate, DateTime endDate)
+public class CodingSession(int id, string startDate, string endDate)
 {
-    public string Id { get; set; } = id;
-    public DateTime StartTime { get; set; } = startDate;
-    public DateTime EndTime { get; set; } = endDate;
+    // public CodingSession(string startDate, string endDate)
+    // {
+    //     Id = Guid.NewGuid().ToString();
+    //     StartTime = startDate;
+    //     EndTime = endDate;
+    // }
 
-    public double Duration
-    {
-        get
-        {
-            TimeSpan duration = EndTime - StartTime;
-            return duration.TotalHours;
-        }
-    }
+
+    public string Id { get; set; } = id.ToString();
+    public string StartTime { get; set; } = startDate;
+
+    public string EndTime { get; set; } = endDate;
+    // public double Duration
+    // {
+    //     get
+    //     {
+    //         TimeSpan duration = EndTime - StartTime;
+    //         return duration.TotalHours;
+    //     }
+    // }
 }
