@@ -18,7 +18,7 @@ using CodingTracker.Views;
  */
 
 /*  TODO
- *  1. Wyświetlanie danych nie działa przy użyciu Dappera. Spróbować to zrobić na prostszym modelu zawierającym np tylko stringi
+ *  1. Naprawiłęm wyświetlanie. Teraz trzeba może obsłużyć prawidłowy typ danych i dorobić pozostałe operacje?
  *
  * ref https://thecsharpacademy.com/project/13/coding-tracker
  */

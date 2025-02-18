@@ -35,12 +35,17 @@ public class CodingSessionPresenter(ICodingSessionsView view, CodingTrackerRepos
         // string startDate = _view.GetDateTime("Enter start date time: ");
         // string endDate = _view.GetDateTime("Enter end date time: ");
         _repository.Insert(new CodingSession(
-            10, "12-05-1999", "23-06-2025"
+            "12-05-1999", "23-06-2025"
         ));
         _view.ShowMessage("User added successfully.");
     }
 
-    private void HandleShowAllSessionsSelect() => _view.ShowCodingSessions(_repository.GetAll());
+    private void HandleShowAllSessionsSelect()
+    {
+        _view.ShowCodingSessions(_repository.GetAll());
+        _view.PressKeyToContinue();
+        ;
+    }
 
     private void HandleUpdateSession() => _view.ShowMessage("Update Session");
 

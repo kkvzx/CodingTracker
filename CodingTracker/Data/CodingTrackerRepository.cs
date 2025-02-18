@@ -63,8 +63,9 @@ public class CodingTrackerRepository
             using (SqliteConnection connection = new(s_connectionString))
             {
                 connection.Open();
-                string command = $"SELECT * FROM {s_tableName}";
-                List<CodingSession> codingSessions = connection.Query<CodingSession>(command).ToList();
+
+                string command = $"SELECT Id, StartTime, EndTime FROM {s_tableName}";
+                var codingSessions = connection.Query<CodingSession>(command).ToList();
 
                 connection.Close();
 

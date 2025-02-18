@@ -8,7 +8,7 @@ public class CodingSessionsView : ICodingSessionsView
     {
         Console.WriteLine("\n          Coding Sessions");
         Console.WriteLine("------------------------------------");
-        Console.WriteLine("Id\tStart Time\tEndTime\tDuration[h]");
+        Console.WriteLine("Id\tStart Time\t\tEndTime\t\tDuration[h]");
         foreach (CodingSession codingSession in codingSessions)
         {
             Console.WriteLine(
