@@ -3,33 +3,34 @@ namespace CodingTracker.model;
 public class CodingSession
 {
     public int Id { get; set; }
-    public string StartTime { get; set; }
-    public string EndTime { get; set; }
+    public DateTime StartTime { get; set; }
+    public DateTime EndTime { get; set; }
 
     public CodingSession()
     {
-        StartTime = "";
-        EndTime = "";
+        StartTime = new DateTime();
+        EndTime = new DateTime();
     }
 
-    public CodingSession(int id, string startDate, string endDate)
+    public CodingSession(int id, DateTime startDate, DateTime endDate)
     {
         Id = id;
         StartTime = startDate;
         EndTime = endDate;
     }
 
-    public CodingSession(string startDate, string endDate)
+    public CodingSession(DateTime startDate, DateTime endDate)
     {
         Id = 0;
         StartTime = startDate;
         EndTime = endDate;
     }
+
     public double Duration
     {
         get
         {
-            TimeSpan duration = DateTime.Parse(EndTime) - DateTime.Parse(StartTime);
+            TimeSpan duration = EndTime - StartTime;
             return duration.TotalHours;
         }
     }

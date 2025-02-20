@@ -18,9 +18,7 @@ using CodingTracker.Views;
  */
 
 /*  TODO
- *  1. Naprawiłęm wyświetlanie. Teraz trzeba może obsłużyć prawidłowy typ danych i dorobić pozostałe operacje?
- *
- * ref https://thecsharpacademy.com/project/13/coding-tracker
+ *  1. Zająć się tableVisualizationEngine
  */
 CodingTrackerRepository repository = new();
 CodingSessionsView codingSessionsView = new();

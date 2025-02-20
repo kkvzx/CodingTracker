@@ -32,51 +32,77 @@ public class CodingTrackerRepository
         }
     }
 
-    public void Insert(CodingSession codingSession)
+    public bool Insert(CodingSession codingSession)
     {
-        try
+        using (SqliteConnection connection = new(s_connectionString))
         {
-            using (SqliteConnection connection = new(s_connectionString))
-            {
-                connection.Open();
-                string command = $"INSERT INTO {s_tableName} (StartTime, EndTime) VALUES (@StartTime, @EndTime)";
-                int rowsAffected = connection.Execute(command, codingSession);
-                Console.WriteLine($"{rowsAffected} row(s) inserted.");
+            connection.Open();
 
-                connection.Close();
-            }
-        }
-        catch (Exception error)
-        {
-            Console.WriteLine(error.Message);
+            string command = $"INSERT INTO {s_tableName} (StartTime, EndTime) VALUES (@StartTime, @EndTime)";
+            int affectedRows = connection.Execute(command, codingSession);
+
+            connection.Close();
+
+            return affectedRows > 0;
         }
     }
 
-    public void Update(CodingSession codingSession) => throw new NotImplementedException();
+    public bool Update(CodingSession codingSession)
+    {
+        using (SqliteConnection connection = new(s_connectionString))
+        {
+            connection.Open();
 
-    public void Delete(string id) => throw new NotImplementedException();
+            string command = $"UPDATE {s_tableName} SET StartTime = @StartTime, EndTime = @EndTime WHERE Id = @Id";
+            int affectedRows = connection.Execute(command, codingSession);
+
+            connection.Close();
+
+            return affectedRows > 0;
+        }
+    }
+
+    public bool Delete(int id)
+    {
+        using (SqliteConnection connection = new(s_connectionString))
+        {
+            connection.Open();
+            string command = $"DELETE FROM {s_tableName} WHERE Id = {id}";
+            int affectedRows = connection.Execute(command);
+
+            connection.Close();
+
+            return affectedRows > 0;
+        }
+    }
+
+    public CodingSession Get(string id)
+    {
+        using (SqliteConnection connection = new(s_connectionString))
+        {
+            connection.Open();
+
+            var command = $"SELECT Id, StartTime, EndTime FROM {s_tableName} WHERE Id = @Id";
+            var codingSession = connection.QuerySingle<CodingSession>(command, new { Id = id });
+
+            connection.Close();
+
+            return codingSession;
+        }
+    }
 
     public List<CodingSession> GetAll()
     {
-        try
+        using (SqliteConnection connection = new(s_connectionString))
         {
-            using (SqliteConnection connection = new(s_connectionString))
-            {
-                connection.Open();
+            connection.Open();
 
-                string command = $"SELECT Id, StartTime, EndTime FROM {s_tableName}";
-                var codingSessions = connection.Query<CodingSession>(command).ToList();
+            string command = $"SELECT Id, StartTime, EndTime FROM {s_tableName}";
+            var codingSessions = connection.Query<CodingSession>(command).ToList();
 
-                connection.Close();
+            connection.Close();
 
-                return codingSessions;
-            }
+            return codingSessions;
         }
-        catch (Exception error)
-        {
-            Console.WriteLine(error.Message);
-        }
-
-        return new List<CodingSession>();
     }
 }
