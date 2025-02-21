@@ -1,3 +1,4 @@
+using System.Globalization;
 using CodingTracker.model;
 using Microsoft.VisualBasic;
 
@@ -5,6 +6,8 @@ namespace CodingTracker.Views;
 
 public class CodingSessionsView
 {
+    public readonly string DateFormat = "yyyy/MM/dd HH:mm";
+
     public void ShowMenu()
     {
         Console.WriteLine("\n1. Add session \n2. Show all sessions\n3. Update session\n4. Delete session\n5. Exit");
@@ -18,7 +21,7 @@ public class CodingSessionsView
         foreach (CodingSession codingSession in codingSessions)
         {
             Console.WriteLine(
-                $"{codingSession.Id}\t{codingSession.StartTime}\t{codingSession.EndTime}\t{codingSession.Duration:F2}");
+                $"{codingSession.Id}\t{codingSession.StartTime.ToString(DateFormat)}\t{codingSession.EndTime.ToString(DateFormat)}\t{codingSession.Duration:F2}");
         }
     }
 
@@ -75,7 +78,9 @@ public class CodingSessionsView
         string? userInput = Console.ReadLine();
         DateTime dateTime;
 
-        while (userInput is null || !DateTime.TryParse(userInput, out dateTime) || dateTime.Year < 1900)
+        while (userInput is null ||
+               !DateTime.TryParseExact(userInput, DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None,
+                   out dateTime) || dateTime.Year < 1900)
         {
             ShowMessage("Invalid format, please try again: ");
             userInput = Console.ReadLine();

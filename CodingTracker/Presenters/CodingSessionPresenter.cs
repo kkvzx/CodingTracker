@@ -79,8 +79,8 @@ public class CodingSessionPresenter(CodingSessionsView view, CodingTrackerReposi
             view.ShowCodingSessions(codingSessions);
 
             var id = view.GetExistingId("Enter id of session to update: ", codingSessions.Select(c => c.Id).ToList());
-            var startTime = view.GetDateTime("Enter start date time in format (yyyy-mm-dd HH:mm:ss): ");
-            var endTime = view.GetDateTime("Enter end date time in format (yyyy-mm-dd HH:mm:ss): ");
+            var startTime = view.GetDateTime($"Enter start date time in format ({view.DateFormat}): ");
+            var endTime = view.GetDateTime($"Enter end date time in format ({view.DateFormat}): ");
 
             var isSuccess = repository.Update(new CodingSession(id, startTime, endTime));
             if (isSuccess)
