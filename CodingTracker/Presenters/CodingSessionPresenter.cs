@@ -1,6 +1,7 @@
 using CodingTracker.Data;
 using CodingTracker.model;
 using CodingTracker.Views;
+using Spectre.Console;
 
 namespace CodingTracker.Presenters;
 
@@ -12,16 +13,15 @@ public class CodingSessionPresenter(CodingSessionsView view, CodingTrackerReposi
 
         while (true)
         {
-            view.ShowMenu();
+            string selectedOption = view.ShowMenu();
 
-            string? choice = view.GetString("Choose an option: ");
-            switch (choice)
+            switch (selectedOption)
             {
-                case "1": HandleAddCodingSessionSelect(); break;
-                case "2": HandleShowAllSessionsSelect(); break;
-                case "3": HandleUpdateSessionSelect(); break;
-                case "4": HandleDeleteSession(); break;
-                case "5": return;
+                case "Add session": HandleAddCodingSessionSelect(); break;
+                case "Show all sessions": HandleShowAllSessionsSelect(); break;
+                case "Update session": HandleUpdateSessionSelect(); break;
+                case "Delete session": HandleDeleteSession(); break;
+                case "Exit": return;
                 default: HandleInvalidChoice(); break;
             }
         }
@@ -33,14 +33,14 @@ public class CodingSessionPresenter(CodingSessionsView view, CodingTrackerReposi
         {
             view.Clear();
 
-            var startTime = view.GetDateTime("Enter start date time in format (yyyy-mm-dd HH:mm:ss): ");
-            var endTime = view.GetDateTime("Enter end date time in format (yyyy-mm-dd HH:mm:ss): ");
+            var startTime = view.GetDateTime("Enter start date time in format (yyyy/MM/dd HH:mm): ");
+            var endTime = view.GetDateTime("Enter end date time in format (yyyy/MM/dd HH:mm): ");
 
             repository.Insert(new CodingSession(
                 startTime, endTime
             ));
 
-            view.ShowMessage("User added successfully.");
+            view.ShowMessage("Session added successfully.");
         }
         catch (Exception error)
         {

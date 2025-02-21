@@ -1,6 +1,7 @@
 using System.Globalization;
 using CodingTracker.model;
 using Microsoft.VisualBasic;
+using Spectre.Console;
 
 namespace CodingTracker.Views;
 
@@ -8,21 +9,32 @@ public class CodingSessionsView
 {
     public readonly string DateFormat = "yyyy/MM/dd HH:mm";
 
-    public void ShowMenu()
+    public string ShowMenu()
     {
-        Console.WriteLine("\n1. Add session \n2. Show all sessions\n3. Update session\n4. Delete session\n5. Exit");
+        var response = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("Welcome to [green]Coding Sessions tracker[/]")
+                .PageSize(5)
+                .AddChoices(new[] { "Add session", "Show all sessions", "Update session", "Delete session", "Exit" }));
+
+        return response;
     }
 
     public void ShowCodingSessions(List<CodingSession> codingSessions)
     {
-        Console.WriteLine("\n          Coding Sessions");
-        Console.WriteLine("------------------------------------");
-        Console.WriteLine("Id\tStart Time\t\tEndTime\t\tDuration[h]");
+        var table = new Table();
+        table.AddColumns("Session ID", "Start Time", "End Time", "Duration");
+
         foreach (CodingSession codingSession in codingSessions)
         {
-            Console.WriteLine(
-                $"{codingSession.Id}\t{codingSession.StartTime.ToString(DateFormat)}\t{codingSession.EndTime.ToString(DateFormat)}\t{codingSession.Duration:F2}");
+            table.AddRow(codingSession.Id.ToString(), codingSession.StartTime.ToString(DateFormat),
+                codingSession.EndTime.ToString(DateFormat),
+                codingSession.Duration.ToString("F2")
+            );
         }
+
+        table.Columns[0].Alignment(Justify.Right);
+        AnsiConsole.Write(table);
     }
 
     public void ShowMessage(string message) => Console.WriteLine(message);
