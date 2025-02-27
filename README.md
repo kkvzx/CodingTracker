@@ -16,3 +16,9 @@ From **MVC** another pattern for Console/WinForm application emerged which is **
 - I learned on my own skin how important is to change working directory of the project in context of DB creation.
 - Single responsibility, I figured out that data layer shouldn't handle errors but they should be bubbled up to presenter layer.
 - I found out how useful tool is **Spectre Console** during development of console application.
+
+### Extra
+- [x] Add the possibility of tracking the coding time via a stopwatch so the user can track the session as it happens.
+- [ ] Create reports where the users can see their total and average coding session per period.
+- [ ] Let the users filter their coding records per period (weeks, days, years) and/or order ascending or descending.
+- [ ] Create the ability to set coding goals and show how far the users are from reaching their goal, along with how many hours a day they would have to code to reach their goal. You can do it via SQL queries or with C#.

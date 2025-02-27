@@ -7,7 +7,9 @@ namespace CodingTracker.Views;
 
 public class CodingSessionsView
 {
-    public readonly string DateFormat = "yyyy/MM/dd HH:mm";
+    private static readonly string DateFormat = "yyyy/MM/dd";
+    private static readonly string TimeFormat = "HH:mm";
+    private static readonly string DateTimeFormat = "yyyy/MM/dd HH:mm";
 
     public void ShowInfo(string message) => AnsiConsole.MarkupLine($"[blue]{message}[/]");
 
@@ -15,13 +17,24 @@ public class CodingSessionsView
 
     public void ShowSuccess(string message) => AnsiConsole.MarkupLine($"[green]{message}[/]");
 
-    public string ShowMenu()
+    public string ShowMenu(bool isSessionInProgress)
     {
+        var choices = isSessionInProgress
+            ? new[]
+            {
+                "Stop running session", "Add session", "Show all sessions", "Update session", "Delete session",
+                "Exit"
+            }
+            : new[]
+            {
+                "Start new session", "Add session", "Show all sessions", "Update session", "Delete session", "Exit"
+            };
+
         string response = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
                 .Title("Welcome to [green]Coding Sessions tracker[/]")
-                .PageSize(5)
-                .AddChoices("Add session", "Show all sessions", "Update session", "Delete session", "Exit"));
+                .PageSize(10)
+                .AddChoices(choices));
 
         return response;
     }
@@ -33,8 +46,8 @@ public class CodingSessionsView
 
         foreach (CodingSession codingSession in codingSessions)
         {
-            table.AddRow(codingSession.Id.ToString(), codingSession.StartTime.ToString(DateFormat),
-                codingSession.EndTime.ToString(DateFormat),
+            table.AddRow(codingSession.Id.ToString(), codingSession.StartTime.ToString(DateTimeFormat),
+                codingSession.EndTime.ToString(DateTimeFormat),
                 codingSession.Duration.ToString("F2")
             );
         }
@@ -80,32 +93,55 @@ public class CodingSessionsView
         return inputId;
     }
 
-    private DateTime GetDateTime(TextPrompt<string> prompt)
+    private DateTime GetDateOnly()
     {
-        var userInput = AnsiConsole.Prompt(prompt);
-        DateTime dateTime;
+        var userInput =
+            AnsiConsole.Prompt(
+                new TextPrompt<string>($"desired format {DateFormat}").DefaultValue(
+                    DateTime.Now.ToString(DateFormat)));
+        DateTime date;
 
         while (!DateTime.TryParseExact(userInput, DateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None,
-                   out dateTime) || dateTime.Year < 1900)
+                   out date) || date.Year < 1900)
         {
-            userInput = AnsiConsole.Prompt(new TextPrompt<string>("[red]Invalid format, please try again![/]"));
+            userInput = AnsiConsole.Prompt(new TextPrompt<string>("[red]Invalid date format, please try again![/]"));
         }
+
+        return date;
+    }
+
+    private TimeSpan GetTimeOnly()
+    {
+        var userInput =
+            AnsiConsole.Prompt(
+                new TextPrompt<string>($"desired format {TimeFormat}").DefaultValue(
+                    DateTime.Now.ToString(TimeFormat)));
+        TimeSpan time;
+
+        while (!TimeSpan.TryParseExact(userInput, "hh\\:mm", CultureInfo.InvariantCulture, out time))
+        {
+            userInput = AnsiConsole.Prompt(new TextPrompt<string>("[red]Invalid time format, please try again![/]"));
+        }
+
+        return time;
+    }
+
+    private DateTime GetDateTime(string message)
+    {
+        AnsiConsole.Markup($"{message}\n");
+        DateTime dateTime = GetDateOnly() + GetTimeOnly();
 
         return dateTime;
     }
 
     public Range GetDateRange()
     {
-        var from = GetDateTime(
-            new TextPrompt<string>($"Enter start date (format ({DateFormat}))").DefaultValue(
-                DateTime.Now.ToString(DateFormat)));
-        var to = GetDateTime(
-            new TextPrompt<string>($"Enter end date (format ({DateFormat}))").DefaultValue(
-                DateTime.Now.ToString(DateFormat)));
+        var from = GetDateTime("Enter start date");
+        var to = GetDateTime("Enter end date");
 
         while (to < from)
         {
-            to = GetDateTime(new TextPrompt<string>("[red]End date must be after start date: [/]"));
+            to = GetDateTime("[red]End date must be after start date[/]");
         }
 
         return new Range(from, to);
