@@ -15,7 +15,8 @@ public class CodingSessionPresenter(CodingSessionsView view, CodingTrackerReposi
 
         while (true)
         {
-            string selectedOption = view.ShowMenu(IsSessionInProgress);
+            int sessionCount = repository.GetRecordsCount();
+            string selectedOption = view.ShowMenu(IsSessionInProgress, sessionCount);
 
             switch (selectedOption)
             {
@@ -25,6 +26,7 @@ public class CodingSessionPresenter(CodingSessionsView view, CodingTrackerReposi
                 case "Show all sessions": HandleShowAllSessionsSelect(); break;
                 case "Update session": HandleUpdateSessionSelect(); break;
                 case "Delete session": HandleDeleteSession(); break;
+                case "Show report": HandleShowReport(); break;
                 case "Exit": return;
                 default: HandleInvalidChoice(); break;
             }
@@ -56,13 +58,15 @@ public class CodingSessionPresenter(CodingSessionsView view, CodingTrackerReposi
     {
         try
         {
-            view.Clear();
-
-            var codingSessions = repository.GetAll();
-
-            if (SessionsCountGate(codingSessions))
+            char userInput = 'i';
+            while (userInput != 'x')
             {
+                view.Clear();
+
+                var codingSessions = repository.GetAll(MapUserInputToSortOption.Parse(userInput));
+
                 view.ShowCodingSessions(codingSessions);
+                userInput = view.ShowSortOptions();
             }
         }
         catch (Exception error)
@@ -81,23 +85,20 @@ public class CodingSessionPresenter(CodingSessionsView view, CodingTrackerReposi
 
             var codingSessions = repository.GetAll();
 
-            if (SessionsCountGate(codingSessions))
+            view.ShowCodingSessions(codingSessions);
+
+            var id = view.GetExistingId("Enter id of session to update: ",
+                codingSessions.Select(c => c.Id).ToList());
+            var dateRange = view.GetDateRange();
+
+            var isSuccess = repository.Update(new CodingSession(id, dateRange.From, dateRange.To));
+            if (isSuccess)
             {
-                view.ShowCodingSessions(codingSessions);
-
-                var id = view.GetExistingId("Enter id of session to update: ",
-                    codingSessions.Select(c => c.Id).ToList());
-                var dateRange = view.GetDateRange();
-
-                var isSuccess = repository.Update(new CodingSession(id, dateRange.From, dateRange.To));
-                if (isSuccess)
-                {
-                    view.ShowSuccess("Session updated successfully.");
-                }
-                else
-                {
-                    view.ShowError($"Failed to update session with '{id}' id.");
-                }
+                view.ShowSuccess("Session updated successfully.");
+            }
+            else
+            {
+                view.ShowError($"Failed to update session with '{id}' id.");
             }
         }
         catch (Exception error)
@@ -116,22 +117,19 @@ public class CodingSessionPresenter(CodingSessionsView view, CodingTrackerReposi
 
             List<CodingSession> codingSessions = repository.GetAll();
 
-            if (SessionsCountGate(codingSessions))
+            view.ShowCodingSessions(codingSessions);
+
+            int idToDelete =
+                view.GetExistingId("Enter session Id to delete: ", codingSessions.Select(c => c.Id).ToList());
+            bool isSuccess = repository.Delete(idToDelete);
+
+            if (isSuccess)
             {
-                view.ShowCodingSessions(codingSessions);
-
-                int idToDelete =
-                    view.GetExistingId("Enter session Id to delete: ", codingSessions.Select(c => c.Id).ToList());
-                bool isSuccess = repository.Delete(idToDelete);
-
-                if (isSuccess)
-                {
-                    view.ShowSuccess("Session deleted successfully.");
-                }
-                else
-                {
-                    view.ShowError($"There is no record with '{idToDelete}' id");
-                }
+                view.ShowSuccess("Session deleted successfully.");
+            }
+            else
+            {
+                view.ShowError($"There is no record with '{idToDelete}' id");
             }
         }
         catch (Exception error)
@@ -154,6 +152,7 @@ public class CodingSessionPresenter(CodingSessionsView view, CodingTrackerReposi
         {
             view.ShowError("Session already started. Stop current session in order to start new.");
         }
+
         view.PressKeyToContinue();
     }
 
@@ -165,11 +164,12 @@ public class CodingSessionPresenter(CodingSessionsView view, CodingTrackerReposi
             {
                 view.Clear();
 
-                repository.Insert(new CodingSession(
+                var currentSession = new CodingSession(
                     CurrentSessionStart.Value, DateTime.Now
-                ));
-
-                view.ShowSuccess($"Session stopped and added successfully.");
+                );
+                repository.Insert(currentSession);
+                view.ShowSuccess(
+                    $"Session stopped and added successfully. Session lasted {Math.Round(currentSession.Duration, 2)} minutes");
 
                 CurrentSessionStart = null;
             }
@@ -177,6 +177,7 @@ public class CodingSessionPresenter(CodingSessionsView view, CodingTrackerReposi
             {
                 view.ShowError(error.Message);
             }
+
             view.PressKeyToContinue();
         }
         else
@@ -185,17 +186,15 @@ public class CodingSessionPresenter(CodingSessionsView view, CodingTrackerReposi
         }
     }
 
-    private bool SessionsCountGate(List<CodingSession> codingSessions)
+    private void HandleShowReport()
     {
-        if (codingSessions.Count == 0)
-        {
-            view.ShowInfo("There's isn't any sessions yet :(");
-            view.ShowInfo("Add sessions first in order to continue.");
+        var dateFormat = "yyyy-MM-dd HH:mm:ss";
+        var reportRange = view.GetDateRange("Enter date range to generate report from");
+        var durationSumInPeriod = repository.GetDurationSumInPeriodInMinutes(reportRange.From.ToString(dateFormat),
+            reportRange.To.ToString(dateFormat));
+        var durationTotalSum = repository.GetTotalDurationInMinutes();
 
-            return false;
-        }
-
-        return true;
+        view.ShowReport(reportRange, durationSumInPeriod, durationTotalSum);
     }
 
     private void HandleInvalidChoice()
@@ -206,9 +205,6 @@ public class CodingSessionPresenter(CodingSessionsView view, CodingTrackerReposi
 
     private bool IsSessionInProgress
     {
-        get
-        {
-            return CurrentSessionStart is not null;
-        }
+        get { return CurrentSessionStart is not null; }
     }
 }

@@ -1,5 +1,6 @@
 using System.Globalization;
 using CodingTracker.model;
+using Microsoft.Identity.Client;
 using Microsoft.VisualBasic;
 using Spectre.Console;
 
@@ -17,24 +18,13 @@ public class CodingSessionsView
 
     public void ShowSuccess(string message) => AnsiConsole.MarkupLine($"[green]{message}[/]");
 
-    public string ShowMenu(bool isSessionInProgress)
+    public string ShowMenu(bool isSessionInProgress, int sessionCount)
     {
-        var choices = isSessionInProgress
-            ? new[]
-            {
-                "Stop running session", "Add session", "Show all sessions", "Update session", "Delete session",
-                "Exit"
-            }
-            : new[]
-            {
-                "Start new session", "Add session", "Show all sessions", "Update session", "Delete session", "Exit"
-            };
-
+        AnsiConsole.Write(new Rule("Welcome to [green]Coding Sessions tracker[/]"));
         string response = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
-                .Title("Welcome to [green]Coding Sessions tracker[/]")
                 .PageSize(10)
-                .AddChoices(choices));
+                .AddChoices(GetMenuOptions(isSessionInProgress, sessionCount)));
 
         return response;
     }
@@ -42,7 +32,7 @@ public class CodingSessionsView
     public void ShowCodingSessions(List<CodingSession> codingSessions)
     {
         var table = new Table();
-        table.AddColumns("Session ID", "Start Time", "End Time", "Duration (h)");
+        table.AddColumns("Session ID", "Start Time", "End Time", "Duration (min)");
 
         foreach (CodingSession codingSession in codingSessions)
         {
@@ -55,6 +45,31 @@ public class CodingSessionsView
         table.Columns[0].Alignment(Justify.Right);
         AnsiConsole.Write(table);
     }
+
+    public char ShowSortOptions()
+    {
+
+        AnsiConsole.Write(new Rule("Sorting Options:"));
+        string response = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .AddChoices(["I - Id","S - Start Time", "E - End Time", "X - Exit"]));
+
+        return response.ToLower()[0];
+    }
+
+    public void ShowReport(Range period, double durationSumInPeriod, double totalDuration)
+    {
+        AnsiConsole.Clear();
+        AnsiConsole.Write(new Rule("[green]REPORT[/]"));
+        AnsiConsole.Write(new Rows(
+            new Markup(
+                $"* Between [green]{period.From.ToString(DateTimeFormat)}[/] and [green]{period.To.ToString(DateTimeFormat)}[/] you spent [green]{durationSumInPeriod}[/] minutes on coding ([green]{(Math.Round(durationSumInPeriod / 60, 2))}[/] hours)"),
+            new Markup(
+                $"* In total you spent [green]{totalDuration}[/] minutes on coding ({Math.Round(totalDuration / 60, 2)} hours)")
+        ));
+        PressKeyToContinue();
+    }
+
 
     public void PressKeyToContinue()
     {
@@ -134,8 +149,13 @@ public class CodingSessionsView
         return dateTime;
     }
 
-    public Range GetDateRange()
+    public Range GetDateRange(string? message = null)
     {
+        if (message is not null)
+        {
+            AnsiConsole.Markup($"{message}\n");
+        }
+
         var from = GetDateTime("Enter start date");
         var to = GetDateTime("Enter end date");
 
@@ -145,5 +165,21 @@ public class CodingSessionsView
         }
 
         return new Range(from, to);
+    }
+
+    private string[] GetMenuOptions(bool isSessionInProgress, int sessionCount)
+    {
+        string liveSessionOption = isSessionInProgress ? "Stop running session" : "Start new session";
+
+        if (sessionCount == 0)
+        {
+            return [liveSessionOption, "Add session", "Exit"];
+        }
+
+        return
+        [
+            liveSessionOption, "Add session", "Show all sessions", "Update session", "Delete session",
+            "Show report", "Exit"
+        ];
     }
 }

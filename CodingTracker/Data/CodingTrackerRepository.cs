@@ -76,33 +76,68 @@ public class CodingTrackerRepository
         }
     }
 
-    public CodingSession Get(string id)
+    public List<CodingSession> GetAll(string? sortBy = "Id")
     {
         using (SqliteConnection connection = new(s_connectionString))
         {
             connection.Open();
 
-            var command = $"SELECT Id, StartTime, EndTime FROM {s_tableName} WHERE Id = @Id";
-            var codingSession = connection.QuerySingle<CodingSession>(command, new { Id = id });
-
-            connection.Close();
-
-            return codingSession;
-        }
-    }
-
-    public List<CodingSession> GetAll()
-    {
-        using (SqliteConnection connection = new(s_connectionString))
-        {
-            connection.Open();
-
-            string command = $"SELECT Id, StartTime, EndTime FROM {s_tableName}";
+            string command = @$"SELECT Id, StartTime, EndTime FROM {s_tableName} ORDER BY {sortBy}";
             var codingSessions = connection.Query<CodingSession>(command).ToList();
 
             connection.Close();
 
             return codingSessions;
+        }
+    }
+
+    public int GetRecordsCount()
+    {
+        using (SqliteConnection connection = new(s_connectionString))
+        {
+            connection.Open();
+
+            string command = @$"SELECT COUNT(*) FROM {s_tableName}";
+            var recordsCount = connection.ExecuteScalar<int>(command);
+
+            connection.Close();
+
+            return recordsCount;
+        }
+    }
+
+    public double GetTotalDurationInMinutes()
+    {
+        using (SqliteConnection connection = new(s_connectionString))
+        {
+            connection.Open();
+
+            string command =
+                @$"SELECT SUM((strftime('%s', EndTime) - strftime('%s', StartTime)) / 60)
+                FROM {s_tableName}";
+            var durationSumMinutes = connection.ExecuteScalar<double>(command);
+
+            connection.Close();
+
+            return durationSumMinutes;
+        }
+    }
+
+    public double GetDurationSumInPeriodInMinutes(string periodStart, string periodEnd)
+    {
+        using (SqliteConnection connection = new(s_connectionString))
+        {
+            connection.Open();
+
+            string command =
+                @$"SELECT SUM((strftime('%s', EndTime) - strftime('%s', StartTime)) / 60)
+                FROM {s_tableName}
+                WHERE strftime('%s', StartTime) >= strftime('%s','{periodStart}') AND strftime('%s', EndTime) <= strftime('%s', '{periodEnd}')";
+            var durationSumMinutes = connection.ExecuteScalar<double>(command);
+
+            connection.Close();
+
+            return durationSumMinutes;
         }
     }
 }

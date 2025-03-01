@@ -31,7 +31,7 @@ public class CodingSession
         get
         {
             TimeSpan duration = EndTime - StartTime;
-            return duration.TotalHours;
+            return duration.TotalMinutes;
         }
     }
 }
