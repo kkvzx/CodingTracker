@@ -1,7 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using CodingTracker.Data;
 using CodingTracker.model;
 using CodingTracker.Views;
-using Range = CodingTracker.Views.Range;
 
 namespace CodingTracker.Presenters;
 
@@ -58,8 +60,8 @@ public class CodingSessionPresenter(CodingSessionsView view, CodingTrackerReposi
     {
         try
         {
-            char userInput = 'i';
-            while (userInput != 'x')
+            string? userInput = null;
+            while (userInput is null || userInput != "Exit")
             {
                 view.Clear();
 

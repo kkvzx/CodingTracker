@@ -1,3 +1,5 @@
+using System;
+
 namespace CodingTracker.model;
 
 public class CodingSession

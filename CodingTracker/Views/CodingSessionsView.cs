@@ -1,7 +1,8 @@
+using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using CodingTracker.model;
-using Microsoft.Identity.Client;
-using Microsoft.VisualBasic;
 using Spectre.Console;
 
 namespace CodingTracker.Views;
@@ -46,15 +47,15 @@ public class CodingSessionsView
         AnsiConsole.Write(table);
     }
 
-    public char ShowSortOptions()
+    public string ShowSortOptions()
     {
 
-        AnsiConsole.Write(new Rule("Sorting Options:"));
+        AnsiConsole.Write(new Rule("Sort by:"));
         string response = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
-                .AddChoices(["I - Id","S - Start Time", "E - End Time", "X - Exit"]));
+                .AddChoices(["Exit", "Id","Start Time", "End Time"]));
 
-        return response.ToLower()[0];
+        return response;
     }
 
     public void ShowReport(Range period, double durationSumInPeriod, double totalDuration)
