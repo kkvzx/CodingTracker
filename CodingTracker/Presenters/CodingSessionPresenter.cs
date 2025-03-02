@@ -205,8 +205,5 @@ public class CodingSessionPresenter(CodingSessionsView view, CodingTrackerReposi
         view.PressKeyToContinue();
     }
 
-    private bool IsSessionInProgress
-    {
-        get { return CurrentSessionStart is not null; }
-    }
+    private bool IsSessionInProgress => CurrentSessionStart != null;
 }

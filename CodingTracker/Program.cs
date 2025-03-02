@@ -7,4 +7,3 @@ CodingSessionsView codingSessionsView = new();
 CodingSessionPresenter presenter = new(codingSessionsView, repository);
 
 presenter.Run();
-<
